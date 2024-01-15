@@ -18,8 +18,8 @@ class ShortestPath[T](graph: WeightedDirectedGraph[T]) {
 
   val determinedVertexSet = collection.mutable.Set[Node]()
   val vertexCandidateQueue = collection.mutable.PriorityQueue[Node]()
-  val startVertexDistanceIndex = collection.mutable.Map[Node,Double]()
-  val predecessorIndex = collection.mutable.Map[Node,Node]()
+  val startVertexDistanceIndex = collection.mutable.Map[Node, Double]()
+  val predecessorIndex = collection.mutable.Map[Node, Node]()
 
   def clear(): Unit = {
     determinedVertexSet.clear()
@@ -35,7 +35,7 @@ class ShortestPath[T](graph: WeightedDirectedGraph[T]) {
 
     if (startVertexDistanceIndex.contains(sink)) {
       val path = new Path(getPath(source, sink).toList)
-      path.setWeight(startVertexDistanceIndex.get(sink).get)
+      path.setWeight(startVertexDistanceIndex(sink))
       Option(path)
     } else {
       None
@@ -69,13 +69,13 @@ class ShortestPath[T](graph: WeightedDirectedGraph[T]) {
       determinedVertexSet += node
       val neighborSet = if (isOpposite) graph.fanIn(node) else graph.fanOut(node)
 
-      neighborSet.filterNot(determinedVertexSet.contains).foreach(next => {
+      neighborSet.diff(determinedVertexSet).foreach(next => {
 
         val edgeWeight = if (isOpposite) graph.edgeWeight(next, node) else graph.edgeWeight(node, next)
         val curDistance = startVertexDistanceIndex.getOrElse(node, Double.MaxValue - edgeWeight)
         val distance = curDistance + edgeWeight
         if (!startVertexDistanceIndex.contains(next) ||
-          startVertexDistanceIndex.get(next).get > distance) {
+          startVertexDistanceIndex(next) > distance) {
 
           startVertexDistanceIndex.put(next, distance)
           predecessorIndex.put(next, node)

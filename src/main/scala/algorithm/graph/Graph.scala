@@ -90,10 +90,12 @@ class WeightedDirectedGraph[T] {
   private val fanOutIndexMap = collection.mutable.Map[Node, collection.mutable.Set[Node]]()
   private val fanInIndexMap = collection.mutable.Map[Node, collection.mutable.Set[Node]]()
 
-  def fanOut(node: Node) = fanOutIndexMap.getOrElse(node, collection.mutable.Set.empty)
-  def fanIn(node: Node) = fanInIndexMap.getOrElse(node, collection.mutable.Set.empty)
+  def fanOut(node: Node) =
+    fanOutIndexMap.getOrElse(node, collection.mutable.Set.empty)
+  def fanIn(node: Node) =
+    fanInIndexMap.getOrElse(node, collection.mutable.Set.empty)
   def edgeWeight(start: Node, end: Node) = edgeWeightIndexMap.getOrElse((start, end), Double.MaxValue)
-  def node(id: T) = nodeIndexMap.get(id).get
+  def node(id: T) = nodeIndexMap(id)
   def edge = edgeWeightIndexMap.keySet
 
   def addNode(node: T): Node = {
@@ -120,18 +122,16 @@ class WeightedDirectedGraph[T] {
     }
 
     if (fanInIndexMap.contains(end)) {
-      fanInIndexMap(end) += start
+      fanInIndexMap(end).add(start)
     }
     else {
-      var idList = collection.mutable.Set[Node]()
-      idList += start
+      val idList = collection.mutable.Set[Node](start)
       fanInIndexMap.put(end, idList)
     }
     if (fanOutIndexMap.contains(start)) {
-      fanOutIndexMap(start) += end
+      fanOutIndexMap(start).add(end)
     } else {
-      var idList = collection.mutable.Set[Node]()
-      idList += end
+      val idList = collection.mutable.Set[Node](end)
       fanOutIndexMap.put(start, idList)
     }
     edgeWeightIndexMap.put((start, end), weight)

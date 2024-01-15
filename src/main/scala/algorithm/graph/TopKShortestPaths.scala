@@ -29,10 +29,7 @@ class TopKShortestPaths[T](graph: ChangableWeightedDirectedGraph[T]) {
       override val maxSize = k
     }
 
-    //
     pathDerivationNodeIndex.clear()
-
-    //
     searchAll(graph.node(start), graph.node(end), k)
   }
 
@@ -126,15 +123,14 @@ object TopKShortestPaths {
 
   def importGraph(fileName: String): ChangableWeightedDirectedGraph[Int] = {
     val graph = new ChangableWeightedDirectedGraph[Int]()
-    val pattern = "([0-9]+) ([0-9]+) ([0-9\\.]+)".r
-    val pattern2 = "([0-9]+)".r
-    for(line <- Source.fromFile(fileName).getLines().filterNot(_.trim.isEmpty)) {
-      line match {
-        case pattern(start, end, weight) => graph.addEdge(new INode(start.toInt), new INode(end.toInt), weight.toDouble)
-        case pattern2(number) =>
-        case _ =>
-      }
+    val src = Source.fromFile(fileName)
+    val lines = src.getLines().toSeq.drop(2)
+
+    for (line <- lines) {
+      val parts = line.split(" ")
+      graph.addEdge(new INode(parts(0).toInt), new INode(parts(1).toInt), parts(2).toDouble)
     }
+    src.close()
     graph
   }
 
