@@ -24,9 +24,9 @@ class TopKShortestPaths[T](graph: ChangableWeightedDirectedGraph[T]) {
     require(k > 0, "The number of paths should be positive")
     require(start != end, "the path is loopless, so the ends of paths should be different")
 
-    // all results would be put in a priority queue with fixed length
+    // all results are put in a priority queue with fixed length
     pathCandidates = new mutable.PriorityQueue[Path] with BoundedPriorityQueue[Path] {
-      override val maxSize = k
+      override val maxSize: Int = k
     }
 
     pathDerivationNodeIndex.clear()

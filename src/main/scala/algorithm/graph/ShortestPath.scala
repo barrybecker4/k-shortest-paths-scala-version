@@ -1,6 +1,7 @@
 package algorithm.graph
 
 import scala.annotation.tailrec
+import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 
 
@@ -16,10 +17,10 @@ class ShortestPath[T](graph: WeightedDirectedGraph[T]) {
   type Node = INode[T]
   type Path = IPath[T]
 
-  val determinedVertexSet = collection.mutable.Set[Node]()
-  val vertexCandidateQueue = collection.mutable.PriorityQueue[Node]()
-  val startVertexDistanceIndex = collection.mutable.Map[Node, Double]()
-  val predecessorIndex = collection.mutable.Map[Node, Node]()
+  private val determinedVertexSet = collection.mutable.Set[Node]()
+  private val vertexCandidateQueue = collection.mutable.PriorityQueue[Node]()
+  val startVertexDistanceIndex: mutable.Map[Node, Double] = collection.mutable.Map[Node, Double]()
+  val predecessorIndex: mutable.Map[Node, Node] = collection.mutable.Map[Node, Node]()
 
   def clear(): Unit = {
     determinedVertexSet.clear()
@@ -37,9 +38,7 @@ class ShortestPath[T](graph: WeightedDirectedGraph[T]) {
       val path = new Path(getPath(source, sink).toList)
       path.setWeight(startVertexDistanceIndex(sink))
       Option(path)
-    } else {
-      None
-    }
+    } else None
   }
 
   private def getPath(so: Node, si: Node): ListBuffer[Node] = {
@@ -69,14 +68,14 @@ class ShortestPath[T](graph: WeightedDirectedGraph[T]) {
       determinedVertexSet += node
       val neighborSet = if (isOpposite) graph.fanIn(node) else graph.fanOut(node)
 
+      //println("neighborSet=" + neighborSet + " opp=" + isOpposite)
       neighborSet.diff(determinedVertexSet).foreach(next => {
-
         val edgeWeight = if (isOpposite) graph.edgeWeight(next, node) else graph.edgeWeight(node, next)
         val curDistance = startVertexDistanceIndex.getOrElse(node, Double.MaxValue - edgeWeight)
         val distance = curDistance + edgeWeight
-        if (!startVertexDistanceIndex.contains(next) ||
-          startVertexDistanceIndex(next) > distance) {
-
+        //println("updateVertex next=" + next + " startVertexToDistance=" + startVertexDistanceIndex)
+        if (!startVertexDistanceIndex.contains(next) || startVertexDistanceIndex(next) > distance) {
+          //println("setting: " + next + " d=" + distance + " updateVertex")
           startVertexDistanceIndex.put(next, distance)
           predecessorIndex.put(next, node)
           next.setWeight(distance)
@@ -115,9 +114,10 @@ class ShortestPath[T](graph: WeightedDirectedGraph[T]) {
    */
   def correctCostBackward(node: Node): Unit = {
     graph.fanIn(node).foreach(pre => {
-      val newWeight = graph.edgeWeight(pre, node) + startVertexDistanceIndex.get(node).get
+      val newWeight = graph.edgeWeight(pre, node) + startVertexDistanceIndex(node)
       val oldWeight = startVertexDistanceIndex.getOrElse(pre, Double.MaxValue)
       if (oldWeight > newWeight) {
+        //println("setting: " + pre + " d=" + newWeight + " ccb")
         startVertexDistanceIndex.put(pre, newWeight)
         predecessorIndex.put(pre, node)
         correctCostBackward(pre)
@@ -128,8 +128,8 @@ class ShortestPath[T](graph: WeightedDirectedGraph[T]) {
   def correctCostForward(node: Node): Double = {
     var cost = Double.MaxValue
     graph.fanOut(node).filter(startVertexDistanceIndex.contains).foreach(next => {
-      val newWeight = graph.edgeWeight(node, next) + startVertexDistanceIndex.get(next).get
-      if (startVertexDistanceIndex.getOrElse(node, Double.MaxValue) >  newWeight) {
+      val newWeight = graph.edgeWeight(node, next) + startVertexDistanceIndex(next)
+      if (startVertexDistanceIndex.getOrElse(node, Double.MaxValue) > newWeight) {
         startVertexDistanceIndex.put(node, newWeight)
         predecessorIndex.put(node, next)
         cost = newWeight

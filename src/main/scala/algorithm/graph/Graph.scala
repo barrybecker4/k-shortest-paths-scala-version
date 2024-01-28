@@ -6,8 +6,8 @@ import scala.collection.mutable._
  * Trait for the weight of graph elements, such as node, edge, path etc.
  */
 trait Weight {
-  var weight: Double = 0
-  def getWeight = weight
+  private var weight: Double = 0
+  def getWeight: Double = weight
   def setWeight(weight: Double): Unit = {
     this.weight = weight
   }
@@ -90,13 +90,15 @@ class WeightedDirectedGraph[T] {
   private val fanOutIndexMap = collection.mutable.Map[Node, collection.mutable.Set[Node]]()
   private val fanInIndexMap = collection.mutable.Map[Node, collection.mutable.Set[Node]]()
 
-  def fanOut(node: Node) =
+  def fanOut(node: Node): Set[Node] =
     fanOutIndexMap.getOrElse(node, collection.mutable.Set.empty)
-  def fanIn(node: Node) =
+  def fanIn(node: Node): Set[Node] =
     fanInIndexMap.getOrElse(node, collection.mutable.Set.empty)
   def edgeWeight(start: Node, end: Node) = edgeWeightIndexMap.getOrElse((start, end), Double.MaxValue)
   def node(id: T) = nodeIndexMap(id)
   def edge = edgeWeightIndexMap.keySet
+
+  def size = nodeIndexMap.size
 
   def addNode(node: T): Node = {
     addNode(new Node(node))
