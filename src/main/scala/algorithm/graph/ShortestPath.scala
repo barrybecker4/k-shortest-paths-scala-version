@@ -68,14 +68,11 @@ class ShortestPath[T](graph: WeightedDirectedGraph[T]) {
       determinedVertexSet += node
       val neighborSet = if (isOpposite) graph.fanIn(node) else graph.fanOut(node)
 
-      //println("neighborSet=" + neighborSet + " opp=" + isOpposite)
       neighborSet.diff(determinedVertexSet).foreach(next => {
         val edgeWeight = if (isOpposite) graph.edgeWeight(next, node) else graph.edgeWeight(node, next)
         val curDistance = startVertexDistanceIndex.getOrElse(node, Double.MaxValue - edgeWeight)
         val distance = curDistance + edgeWeight
-        //println("updateVertex next=" + next + " startVertexToDistance=" + startVertexDistanceIndex)
         if (!startVertexDistanceIndex.contains(next) || startVertexDistanceIndex(next) > distance) {
-          //println("setting: " + next + " d=" + distance + " updateVertex")
           startVertexDistanceIndex.put(next, distance)
           predecessorIndex.put(next, node)
           next.setWeight(distance)
@@ -146,6 +143,16 @@ class ShortestPath[T](graph: WeightedDirectedGraph[T]) {
         path.setWeight(cost)
         Option(path)
     }
+  }
+
+  private def serializeQueue(): String = {
+    val clonedQueue = vertexCandidateQueue.clone()
+    var s = "sorted queue: "
+    while (clonedQueue.nonEmpty) {
+      val value = clonedQueue.dequeue()
+      s += s"$value(${startVertexDistanceIndex(value)}) "
+    }
+    s
   }
 
 }

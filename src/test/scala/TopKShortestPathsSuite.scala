@@ -74,6 +74,35 @@ class TopKShortestPathsSuite extends FunSuite {
     verify("test_7", 0, 5, 2, expPaths)
   }
 
+  // Should get:
+  // 15.0 3 3
+  // 4.0 0 1 3
+  // 4.0 0 1 4 3
+  // 7.0 0 1 2 4 3
+  test("Find the shortest paths in a graph 'test_7' from 0 -> 3, k=3") {
+    val path1 = new IPath[Int](List(new INode(0), new INode(1), new INode(3)))
+    path1.setWeight(4.0)
+    val path2 = new IPath[Int](List(new INode(0), new INode(1), new INode(4), new INode(3)))
+    path2.setWeight(4.0)
+    val path3 = new IPath[Int](List(new INode(0), new INode(1), new INode(2), new INode(4), new INode(3)))
+    path3.setWeight(7.0)
+    val expPaths = List(path1, path2, path3)
+    verify("test_7", 0, 3, 3, expPaths)
+  }
+
+  // Should get:
+  // 15.0 5 2
+  // 5.0 0 1 4 5
+  // 10.0 0 1 4 3 5
+  test("Find the shortest paths in a graph 'test_7' from 0 -> 5, k=2") {
+    val path1 = new IPath[Int](List(new INode(0), new INode(1), new INode(4), new INode(5)))
+    path1.setWeight(5.0)
+    val path2 = new IPath[Int](List(new INode(0), new INode(1), new INode(4), new INode(3), new INode(5)))
+    path2.setWeight(10.0)
+    val expPaths = List(path1, path2)
+    verify("test_7", 0, 5, 2, expPaths)
+  }
+
   test("Find the shortest paths in a graph 'test_8' from 0 -> 5") {
     val path1 = new IPath[Int](List(new INode(0), new INode(6), new INode(7), new INode(5)))
     path1.setWeight(3.0)
@@ -92,6 +121,9 @@ class TopKShortestPathsSuite extends FunSuite {
     verify("test_50", 0, 5, 2, expPaths)
   }
 
+  // Should get:
+  // 0.1390212 0 17 7
+  // 0.1746318 0 17 25 7
   test("Find 2 the shortest paths in a graph 'test_50_2' from 0 -> 7") {
     val path1 = new Path(List(new INode(0), new INode(23), new INode(10), new INode(35), new INode(39), new INode(25), new INode(7)))
     path1.setWeight(0.3396084)
@@ -101,6 +133,11 @@ class TopKShortestPathsSuite extends FunSuite {
     verify("test_50_2", 0, 7, 2, expPath)
   }
 
+  // Should get:
+  // 0.1390212 0 17 7
+  // 0.1746318 0 17 25 7
+  // 0.1843206 0 17 25 32 7
+  // This case fails to get optimal result because there are redundant edges between some nodes, that this algorithm does not necessarily pick the smallest.
   test("Find 3 the shortest paths in a graph 'test_50_2' from 0 -> 7") {
     val path1 = new Path(List(new INode(0), new INode(23), new INode(10), new INode(35), new INode(39), new INode(25), new INode(7)))
     path1.setWeight(0.3396084)
@@ -112,6 +149,13 @@ class TopKShortestPathsSuite extends FunSuite {
     verify("test_50_2", 0, 7, 3, expPath)
   }
 
+  // Should get:
+  // 0.7308888 7 4
+  // 0.1390212 0 17 7
+  // 0.1746318 0 17 25 7
+  // 0.1843206 0 17 25 32 7
+  // 0.2329152 0 17 4 25 7
+  // This case fails to get optimal result because there are redundant edges between some nodes, that this algorithm does not necessarily pick the smallest.
   test("Find 4 the shortest paths in a graph 'test_50_2' from 0 -> 7") {
     val path1 = new Path(List(new INode(0), new INode(23), new INode(10), new INode(35), new INode(39), new INode(25), new INode(7)))
     path1.setWeight(0.3396084)
